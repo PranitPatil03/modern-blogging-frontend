@@ -2,13 +2,14 @@
 import InputBox from "../components/InputBox";
 import googleIcon from "../assets/google.png";
 import { Link } from "react-router-dom";
+import PageAnimation from "../common/PageAnimation";
 
 const UserAuthFormPage = ({ type }) => {
   return (
-    <div>
-      <>
+    <>
+      <PageAnimation key={type}>
         <section className="h-cover flex items-center justify-center">
-          <form className="w-[50%] max-w-200px">
+          <form className="w-[90%] md:w-[50%] max-w-200px">
             <h1 className="text-4xl font-gelasio capitalize text-center mb-24">
               {type === "sign-in" ? "Welcome Back" : "Join Us"}
             </h1>
@@ -75,8 +76,8 @@ const UserAuthFormPage = ({ type }) => {
             )}
           </form>
         </section>
-      </>
-    </div>
+      </PageAnimation>
+    </>
   );
 };
 
