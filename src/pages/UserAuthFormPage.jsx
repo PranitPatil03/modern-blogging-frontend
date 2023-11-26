@@ -10,6 +10,7 @@ import axios from "axios";
 import { StoreSession } from "../common/Session";
 import { useContext } from "react";
 import { UserContext } from "../App";
+import { authWithGoogle } from "../common/Firebase";
 
 const UserAuthFormPage = ({ type }) => {
   const {
@@ -70,6 +71,27 @@ const UserAuthFormPage = ({ type }) => {
     userAuthFromServer(serverRoute, formData);
   };
 
+  const handleGoogleAuth = (e) => {
+    e.preventDefault();
+
+    authWithGoogle()
+      .then((user) => {
+        console.log(user.accessToken);
+
+        const serverRoute = "/google-auth";
+
+        const formData = {
+          accessToken: user.accessToken,
+        };
+
+        userAuthFromServer(serverRoute, formData);
+      })
+      .catch((err) => {
+        toast.error("Something went wrong , Try Again");
+        return console.log(err);
+      });
+  };
+
   return accessToken ? (
     <Navigate to="/" />
   ) : (
@@ -120,7 +142,10 @@ const UserAuthFormPage = ({ type }) => {
             <hr className="w-1/2 border-black"></hr>
           </div>
 
-          <button className="btn-dark flex items-center justify-center gap-4 w-[90%] center">
+          <button
+            className="btn-dark flex items-center justify-center gap-4 w-[90%] center"
+            onClick={handleGoogleAuth}
+          >
             <img src={googleIcon} className="w-5" /> continue with Google
           </button>
 
