@@ -29,6 +29,7 @@ const UserAuthFormPage = ({ type }) => {
     axios
       .post(import.meta.env.VITE_SERVER_DOMAIN + serverRoute, formData)
       .then(({ data }) => {
+        console.log("Data ==>", data);
         StoreSession("user", JSON.stringify(data));
         setUserAuth(data);
       })
@@ -76,13 +77,15 @@ const UserAuthFormPage = ({ type }) => {
 
     authWithGoogle()
       .then((user) => {
-        console.log(user.accessToken);
+        console.log(user.accessToken.length);
 
         const serverRoute = "/google-auth";
 
         const formData = {
           accessToken: user.accessToken,
         };
+
+        console.log(formData.accessToken.length);
 
         userAuthFromServer(serverRoute, formData);
       })

@@ -1,5 +1,7 @@
 const PublishForm = () => {
-  return <div></div>;
+  return (<>
+    <h1>PublishForm</h1>
+  </>)
 };
 
 export default PublishForm;
