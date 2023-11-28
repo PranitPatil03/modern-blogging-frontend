@@ -1,10 +1,24 @@
-import { useContext, useState } from "react";
+import { createContext, useContext, useState } from "react";
 import { UserContext } from "../App";
 import { Navigate } from "react-router-dom";
 import BlogEditor from "../components/BlogEditor";
 import PublishForm from "../components/PublishForm";
 
+const blogStructure = {
+  title: '',
+  banner: '',
+  content: [],
+  tags: [],
+  description: '',
+  author: { personal_info: {} }
+}
+
+export const EditorContext = createContext({})
+
 const EditorPages = () => {
+
+  const [blog, setBlog] = useState(blogStructure)
+
   const [editorState, setEditorState] = useState("editor");
 
   const {
@@ -12,7 +26,7 @@ const EditorPages = () => {
   } = useContext(UserContext);
 
   return (
-    <>
+    <EditorContext.Provider value={{ blog, setBlog, editorState, setEditorState }}>
       {accessToken === null ? (
         <Navigate to="/sign-in" />
       ) : editorState == "editor" ? (
@@ -20,7 +34,7 @@ const EditorPages = () => {
       ) : (
         <PublishForm />
       )}
-    </>
+    </EditorContext.Provider>
   );
 };
 
