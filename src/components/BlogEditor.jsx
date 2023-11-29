@@ -8,6 +8,7 @@ import PageAnimation from "../common/PageAnimation";
 import { EditorContext } from "../pages/EditorPages";
 import EditorJS from "@editorjs/editorjs";
 import { tools } from "./Tools";
+import { Container } from "postcss";
 
 const BlogEditor = () => {
   const {
@@ -23,7 +24,7 @@ const BlogEditor = () => {
     setTextEditor(
       new EditorJS({
         holderId: "blogEditor",
-        data: "",
+        data: content,
         tools: tools,
         placeholder: "Write a something great ",
       })
@@ -127,6 +128,7 @@ const BlogEditor = () => {
             </div>
 
             <textarea
+              defaultValue="Title"
               className="text-4xl font-medium w-full h-20 outline-none resize-none mt-10 leading-tight placeholder:opacity-40"
               placeholder="Blog Title"
               onKeyDown={handleOnKeyDown}
