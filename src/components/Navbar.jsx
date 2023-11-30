@@ -76,7 +76,7 @@ const Navbar = () => {
                   />
                 </button>
 
-                {UserNavPanel ? <UserNavigationPanel /> : ""}
+                {UserNavPanel ? <UserNavigationPanel /> : " "}
               </div>
             </>
           ) : (

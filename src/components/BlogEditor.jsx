@@ -1,7 +1,7 @@
 import { useContext, useEffect } from "react";
 import logo from "../assets/logo.png";
 import uploadImg from "../common/AWS";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Toaster, toast } from "react-hot-toast";
 import defaultBanner from "../assets/blogBanner.png";
 import PageAnimation from "../common/PageAnimation";
@@ -9,6 +9,8 @@ import { EditorContext } from "../pages/EditorPages";
 import EditorJS from "@editorjs/editorjs";
 import { tools } from "./Tools";
 import { Container } from "postcss";
+import axios from "axios";
+import { UserContext } from "../App";
 
 const BlogEditor = () => {
   const {
@@ -19,6 +21,12 @@ const BlogEditor = () => {
     setEditorState,
     blog: { title, banner, content, tags, description },
   } = useContext(EditorContext);
+
+  const {
+    userAuth: { accessToken },
+  } = useContext(UserContext);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     setTextEditor(
@@ -73,26 +81,75 @@ const BlogEditor = () => {
 
   const handlePublishEvent = () => {
     if (!banner.length) {
-      toast.error("Upload a blog banner to publish it")
+      toast.error("Upload a blog banner to publish it");
     }
 
     if (!title.length) {
-      toast.error("Give Title to the blog to publish it")
+      toast.error("Give Title to the blog to publish it");
     }
 
     if (textEditor.isReady) {
-      textEditor.save().then(data => {
-        console.log(data)
+      textEditor.save().then((data) => {
+        console.log(data);
         if (data.blocks.length) {
-          setBlog({ ...blog, content: data })
-          setEditorState("publish")
+          setBlog({ ...blog, content: data });
+          setEditorState("publish");
         } else {
-          return toast.error("Write something to publish the Blog")
+          return toast.error("Write something to publish the Blog");
         }
-      })
+      });
+    }
+  };
+
+  const handleSaveDraft = (e) => {
+    
+    if (e.target.className.includes("disable")) {
+      return;
     }
 
-  }
+    if (!title.length) {
+      return toast.error("Give Title to save the blog as a draft");
+    }
+
+    const loadingToast = toast.loading("Publishing....");
+
+    e.target.classList.add("disable");
+
+    if (textEditor.isReady) {
+      textEditor.save().then((content) => {
+        const blogObj = {
+          title,
+          description,
+          banner,
+          content,
+          tags,
+          draft: true,
+        };
+
+        axios
+          .post(import.meta.env.VITE_SERVER_DOMAIN + "/create-blog", blogObj, {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          })
+          .then(() => {
+            e.target.classList.remove("disable");
+            toast.dismiss(loadingToast);
+            toast.success("Blog Saved as Drafted ✅👍");
+
+            setTimeout(() => {
+              navigate("/");
+            }, 500);
+          })
+          .catch(({ response }) => {
+            e.target.classList.remove("disable");
+            toast.dismiss(loadingToast);
+
+            return toast.error(response.data.error);
+          });
+      });
+    }
+  };
 
   return (
     <>
@@ -104,8 +161,12 @@ const BlogEditor = () => {
           {title.length ? title : "Blog Title"}
         </p>
         <div className="flex gap-4 ml-auto">
-          <button className="btn-dark py-2" onClick={handlePublishEvent}>Publish</button>
-          <button className="btn-light py-2">Save As Draft</button>
+          <button className="btn-dark py-2" onClick={handlePublishEvent}>
+            Publish
+          </button>
+          <button className="btn-light py-2" onClick={handleSaveDraft}>
+            Save As Draft
+          </button>
         </div>
       </nav>
 

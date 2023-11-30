@@ -3,10 +3,15 @@ import PageAnimation from "../common/PageAnimation";
 import { EditorContext } from "../pages/EditorPages";
 import Tags from "./Tags";
 import { Toaster, toast } from "react-hot-toast";
+import axios from "axios";
+import { UserContext } from "../App";
+import { useNavigate } from "react-router-dom";
 
 const PublishForm = () => {
   const characterLength = 200;
   const tagLimit = 2;
+
+  const navigate = useNavigate();
 
   const {
     blog,
@@ -14,6 +19,10 @@ const PublishForm = () => {
     setEditorState,
     blog: { title, banner, content, tags, description },
   } = useContext(EditorContext);
+
+  const {
+    userAuth: { accessToken },
+  } = useContext(UserContext);
 
   const handleCloseEvent = () => {
     setEditorState("editor");
@@ -52,6 +61,59 @@ const PublishForm = () => {
       }
       e.target.value = "";
     }
+  };
+
+  const handlePublishBlog = (e) => {
+    if (e.target.className.includes("disable")) {
+      return;
+    }
+
+    if (!description.length) {
+      return toast.error("Upload a blog banner to publish it");
+    }
+
+    if (!title.length) {
+      return toast.error("Give Title to the blog to publish it");
+    }
+
+    if (!tags.length) {
+      return toast.error("Add Tags to publish the blog");
+    }
+
+    const loadingToast = toast.loading("Publishing....");
+
+    e.target.classList.add("disable");
+
+    const blogObj = {
+      title,
+      description,
+      banner,
+      content,
+      tags,
+      draft: false,
+    };
+
+    axios
+      .post(import.meta.env.VITE_SERVER_DOMAIN + "/create-blog", blogObj, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      })
+      .then(() => {
+        e.target.classList.remove("disable");
+        toast.dismiss(loadingToast);
+        toast.success("Blog Published ✅👍");
+
+        setTimeout(() => {
+          navigate("/");
+        }, 500);
+      })
+      .catch(({ response }) => {
+        e.target.classList.remove("disable");
+        toast.dismiss(loadingToast);
+
+        return toast.error(response.data.error);
+      });
   };
 
   return (
@@ -129,7 +191,9 @@ const PublishForm = () => {
               {tagLimit - tags.length} Tags Left
             </p>
 
-            <button className="btn-dark px-8">Publish</button>
+            <button className="btn-dark px-8" onClick={handlePublishBlog}>
+              Publish
+            </button>
           </div>
         </section>
       </PageAnimation>
