@@ -1,9 +1,18 @@
+/* eslint-disable react/prop-types */
+/* eslint-disable react-refresh/only-export-components */
 import { useEffect, useRef, useState } from "react";
 
-/* eslint-disable react/prop-types */
-const InPageNavigation = ({routes, defaultHidden=[],defaultActiveIndex = 0 ,children}) => {
-  const activeTabLineRef = useRef();
-  const activeTabRef = useRef();
+export let activeTabLineRef;
+export let activeTabRef;
+
+const InPageNavigation = ({
+  routes,
+  defaultHidden = [],
+  defaultActiveIndex = 0,
+  children,
+}) => {
+  activeTabLineRef = useRef();
+  activeTabRef = useRef();
 
   const [inPageNavIndex, setInPageNavIndex] = useState(defaultActiveIndex);
 
@@ -29,7 +38,7 @@ const InPageNavigation = ({routes, defaultHidden=[],defaultActiveIndex = 0 ,chil
               ref={i === defaultActiveIndex ? activeTabRef : null}
               className={
                 "p-5 px-5 capitalize " +
-                (inPageNavIndex == i ? "text-black " : "text-dark-grey ") + 
+                (inPageNavIndex == i ? "text-black " : "text-dark-grey ") +
                 (defaultHidden.includes(route) ? " md:hidden " : " ")
               }
               key={i}
@@ -46,7 +55,6 @@ const InPageNavigation = ({routes, defaultHidden=[],defaultActiveIndex = 0 ,chil
       </div>
 
       {Array.isArray(children) ? children[inPageNavIndex] : children}
-
     </>
   );
 };
