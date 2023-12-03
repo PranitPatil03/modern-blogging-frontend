@@ -6,6 +6,8 @@ import Loader from "../components/Loader";
 import BlogPostCard from "../components/BlogPostCard";
 import MinimalBlogPost from "../components/NobannerBlogPost";
 import Nodata from "../components/Nodata";
+import FilterPaginationData from "../common/FilterPaginationData";
+import LoadMoreDataBtn from "../components/LoadMore";
 
 const HomePage = () => {
   const [blogs, setBlogs] = useState(null);
@@ -24,7 +26,6 @@ const HomePage = () => {
     "Personal Finance",
     "Book",
     "Movie",
-    "Panamera",
   ];
 
   const LoadBlogByCategory = (e) => {
@@ -37,24 +38,40 @@ const HomePage = () => {
     setPageState(category);
   };
 
-  const fetchLatestBlogs = () => {
+  const fetchLatestBlogs = ({ page = 1 }) => {
     axios
-      .get(import.meta.env.VITE_SERVER_DOMAIN + "/latest-blogs")
-      .then(({ data }) => {
-        setBlogs(data.blogs);
+      .post(import.meta.env.VITE_SERVER_DOMAIN + "/latest-blogs", { page })
+      .then(async ({ data }) => {
+        const formateData = await FilterPaginationData({
+          state: blogs,
+          data: data.blogs,
+          page,
+          countRoute: "/all-latest-blogs-count",
+        });
+
+        setBlogs(formateData);
       })
       .catch((err) => {
         console.log(err);
       });
   };
 
-  const fetchBlogsByCategory = () => {
+  const fetchBlogsByCategory = ({ page = 1 }) => {
     axios
       .post(import.meta.env.VITE_SERVER_DOMAIN + "/search-blogs", {
         tag: pageState,
+        page,
       })
-      .then(({ data }) => {
-        setBlogs(data.blogs);
+      .then(async ({ data }) => {
+        const formateData = await FilterPaginationData({
+          state: blogs,
+          data: data.blogs,
+          page,
+          countRoute: "/search-blogs-count",
+          data_to_send: { tag: pageState },
+        });
+        console.log(formateData);
+        setBlogs(formateData);
       })
       .catch((err) => {
         console.log(err);
@@ -76,9 +93,9 @@ const HomePage = () => {
     activeTabRef.current.click();
 
     if (pageState == "home") {
-      fetchLatestBlogs();
+      fetchLatestBlogs({ page: 1 });
     } else {
-      fetchBlogsByCategory();
+      fetchBlogsByCategory({ page: 1 });
     }
 
     if (!trendingBlogs) {
@@ -97,8 +114,8 @@ const HomePage = () => {
             <>
               {blogs === null ? (
                 <Loader />
-              ) : blogs.length ? (
-                blogs.map((blog, i) => {
+              ) : blogs.results.length ? (
+                blogs.results.map((blog, i) => {
                   return (
                     <PageAnimation
                       key={i}
@@ -114,6 +131,13 @@ const HomePage = () => {
               ) : (
                 <Nodata message="No Blogs Published yet" />
               )}
+
+              <LoadMoreDataBtn
+                state={blogs}
+                fetchDataFun={
+                  pageState === "home" ? fetchLatestBlogs : fetchBlogsByCategory
+                }
+              />
             </>
             {trendingBlogs === null ? (
               <Loader />
