@@ -6,6 +6,9 @@ import { createContext, useEffect, useState } from "react";
 import { LookInSession } from "./common/Session";
 import EditorPages from "./pages/EditorPages";
 import HomePage from "./pages/HomePage";
+import SearchPage from "./pages/SearchPage";
+import PageNotFound from "./pages/Page404";
+import ProfilePage from "./pages/ProfilePage";
 
 export const UserContext = createContext({});
 
@@ -26,8 +29,11 @@ function App() {
         <Route path="/editor" element={<EditorPages />} />
         <Route path="/" element={<Navbar />}>
           <Route index element={<HomePage />} />
-          <Route path="/sign-in" element={<UserAuthForm type="sign-in" />} />
-          <Route path="/signup" element={<UserAuthForm type="sign-up" />} />
+          <Route path="sign-in" element={<UserAuthForm type="sign-in" />} />
+          <Route path="signup" element={<UserAuthForm type="sign-up" />} />
+          <Route path="search/:query" element={<SearchPage />} />
+          <Route path="user/:id" element={<ProfilePage/>} />
+          <Route path="*" element={<PageNotFound/>} />
         </Route>
       </Routes>
     </UserContext.Provider>
