@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { Link } from "react-router-dom";
-import getDay from "../common/Date";
+import {getDay} from "../common/Date";
 
 const MinimalBlogPost = ({ blog, index }) => {
   let {

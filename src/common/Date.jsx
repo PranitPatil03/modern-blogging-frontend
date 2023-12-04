@@ -23,10 +23,14 @@ const days = [
   "Saturday",
 ];
 
-const getDay = (timestamp) => {
+export const getDay = (timestamp) => {
   const date = new Date(timestamp);
 
   return `${date.getDate()} ${months[date.getMonth()]}`;
 };
 
-export default getDay;
+export const getFullDay = (timestamp) => {
+  const date = new Date(timestamp);
+
+  return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
+};
