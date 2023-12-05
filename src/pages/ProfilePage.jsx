@@ -7,6 +7,13 @@ import Loader from "../components/Loader";
 import { useContext } from "react";
 import { UserContext } from "../App";
 import AboutUser from "../components/About";
+import FilterPaginationData from "../common/FilterPaginationData";
+import InPageNavigation from "../components/InpageNavigation";
+import BlogPostCard from "../components/BlogPostCard";
+import Nodata from "../components/Nodata";
+import LoadMoreDataBtn from "../components/LoadMore";
+import MinimalBlogPost from "../components/NobannerBlogPost";
+import PageNotFound from "./Page404";
 
 export const profileDataStructure = {
   personal_info: {
@@ -35,8 +42,10 @@ export const profileDataStructure = {
 const ProfilePage = () => {
   const { id: profileId } = useParams();
 
-  const [profile, setProfile] = useState(profileDataStructure);
+  const [blogs, setBlogs] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [profileLoaded, setProfileLoaded] = useState("");
+  const [profile, setProfile] = useState(profileDataStructure);
 
   const {
     userAuth: { userName },
@@ -55,8 +64,11 @@ const ProfilePage = () => {
         userName: profileId,
       })
       .then(({ data: user }) => {
-        console.log(user);
-        setProfile(user);
+        if (user != null) {
+          setProfile(user);
+        }
+        setProfileLoaded(profileId);
+        getBlogs({ user_id: user._id });
         setLoading(false);
       })
       .catch((err) => {
@@ -65,14 +77,46 @@ const ProfilePage = () => {
       });
   };
 
+  const getBlogs = ({ page = 1, user_id }) => {
+    user_id = user_id === undefined ? blogs.user_id : user_id;
+    axios
+      .post(import.meta.env.VITE_SERVER_DOMAIN + "/search-blogs", {
+        page,
+        author: user_id,
+      })
+      .then(async ({ data }) => {
+        const formattedData = await FilterPaginationData({
+          state: blogs,
+          data: data.blogs,
+          page,
+          countRoute: "/search-blogs-count",
+          data_to_send: { author: user_id },
+        });
+
+        formattedData.user_id = user_id;
+        console.log(formattedData);
+        setBlogs(formattedData);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
   useEffect(() => {
-    resetState();
-    fetchUserProfile();
-  }, [profileId]);
+    if (profileId != profileLoaded) {
+      setBlogs(null);
+    }
+
+    if (blogs == null) {
+      resetState();
+      fetchUserProfile();
+    }
+  }, [profileId, blogs]);
 
   const resetState = () => {
     setProfile(profileDataStructure);
     setLoading(true);
+    setProfileLoaded("");
   };
 
   return (
@@ -80,9 +124,9 @@ const ProfilePage = () => {
       <PageAnimation>
         {loading ? (
           <Loader />
-        ) : (
+        ) : profile_userName.length ? (
           <section className="h-cover md:flex flex-row-reverse items-start gap-5 min-[1100px]:gap-12">
-            <div className="flex flex-col max-md:items-center gap-5 min-w-[250px]">
+            <div className="flex flex-col max-md:items-center gap-5 min-w-[250px] md:w-[50%] md:pl-8 md:border-l border-grey md:sticky md:top-[100px] md:py-10">
               <img
                 src={profile_img}
                 className="w-48 h-48 bg-grey rounded-full md:w-32 md:h-32"
@@ -108,11 +152,55 @@ const ProfilePage = () => {
                 ) : (
                   " "
                 )}
-                </div>
-                
-                <AboutUser className="max-md:hidden" bio={bio} social_links={social_links} joinedAt={joinedAt} />
+              </div>
+
+              <AboutUser
+                className="max-md:hidden"
+                bio={bio}
+                social_links={social_links}
+                joinedAt={joinedAt}
+              />
+            </div>
+
+            <div className="max-md:mt-12 w-full">
+              <InPageNavigation
+                defaultHidden={["About"]}
+                routes={["Blogs Published", "About"]}
+              >
+                <>
+                  {blogs === null ? (
+                    <Loader />
+                  ) : blogs.results.length ? (
+                    blogs.results.map((blog, i) => {
+                      return (
+                        <PageAnimation
+                          key={i}
+                          transition={{ duration: 1, delay: i * 0.1 }}
+                        >
+                          <BlogPostCard
+                            content={blog}
+                            author={blog.author.personal_info}
+                          />
+                        </PageAnimation>
+                      );
+                    })
+                  ) : (
+                    <Nodata message="No Blogs Published yet" />
+                  )}
+
+                  <LoadMoreDataBtn state={blogs} fetchDataFun={getBlogs} />
+                </>
+
+                <AboutUser
+                  bio={bio}
+                  social_links={social_links}
+                  joinedAt={joinedAt}
+                />
+              </InPageNavigation>
             </div>
           </section>
+        ) : (
+          <PageNotFound />
         )}
       </PageAnimation>
     </>
