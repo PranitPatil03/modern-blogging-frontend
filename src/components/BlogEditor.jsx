@@ -1,7 +1,7 @@
 import { useContext, useEffect } from "react";
 import logo from "../assets/logo.png";
 import uploadImg from "../common/AWS";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { Toaster, toast } from "react-hot-toast";
 import defaultBanner from "../assets/blogBanner.png";
 import PageAnimation from "../common/PageAnimation";
@@ -22,6 +22,8 @@ const BlogEditor = () => {
     blog: { title, banner, content, tags, description },
   } = useContext(EditorContext);
 
+  const { blog_id } = useParams();
+
   const {
     userAuth: { accessToken },
   } = useContext(UserContext);
@@ -32,7 +34,7 @@ const BlogEditor = () => {
     setTextEditor(
       new EditorJS({
         holderId: "blogEditor",
-        data: content,
+        data: Array.isArray(content) ? content[0] : content,
         tools: tools,
         placeholder: "Write a something great ",
       })
@@ -68,7 +70,6 @@ const BlogEditor = () => {
 
   const handleOnChange = (e) => {
     const input = e.target;
-
     input.style.height = "auto";
     input.style.height = input.scrollHeight + "px";
     setBlog({ ...blog, title: input.value });
@@ -102,7 +103,6 @@ const BlogEditor = () => {
   };
 
   const handleSaveDraft = (e) => {
-    
     if (e.target.className.includes("disable")) {
       return;
     }
@@ -127,11 +127,15 @@ const BlogEditor = () => {
         };
 
         axios
-          .post(import.meta.env.VITE_SERVER_DOMAIN + "/create-blog", blogObj, {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          })
+          .post(
+            import.meta.env.VITE_SERVER_DOMAIN + "/create-blog",
+            { ...blogObj, id: blog_id },
+            {
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+              },
+            }
+          )
           .then(() => {
             e.target.classList.remove("disable");
             toast.dismiss(loadingToast);
@@ -190,6 +194,7 @@ const BlogEditor = () => {
 
             <textarea
               defaultValue="Title"
+              value={title}
               className="text-4xl font-medium w-full h-20 outline-none resize-none mt-10 leading-tight placeholder:opacity-40"
               placeholder="Blog Title"
               onKeyDown={handleOnKeyDown}

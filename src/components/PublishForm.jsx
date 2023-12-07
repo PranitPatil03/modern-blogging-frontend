@@ -5,11 +5,12 @@ import Tags from "./Tags";
 import { Toaster, toast } from "react-hot-toast";
 import axios from "axios";
 import { UserContext } from "../App";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 const PublishForm = () => {
   const characterLength = 200;
-  const tagLimit = 2;
+  const tagLimit = 10;
+  const { blog_id } = useParams();
 
   const navigate = useNavigate();
 
@@ -94,11 +95,15 @@ const PublishForm = () => {
     };
 
     axios
-      .post(import.meta.env.VITE_SERVER_DOMAIN + "/create-blog", blogObj, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      })
+      .post(
+        import.meta.env.VITE_SERVER_DOMAIN + "/create-blog",
+        { ...blogObj, id: blog_id },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      )
       .then(() => {
         e.target.classList.remove("disable");
         toast.dismiss(loadingToast);
