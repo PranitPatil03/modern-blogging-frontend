@@ -3,10 +3,14 @@ import { useContext } from "react";
 import { BlogContext } from "../pages/BlogPage";
 import { Link } from "react-router-dom";
 import { UserContext } from "../App";
+import { Toaster, toast } from "react-hot-toast";
+import axios from "axios";
 
 const BlogInteraction = () => {
   let {
+    blog,
     blog: {
+      _id,
       blog_id,
       title,
       activity,
@@ -16,20 +20,60 @@ const BlogInteraction = () => {
       },
     },
     setBlog,
+    isLikeByUser,
+    setIsLikeByUser,
   } = useContext(BlogContext);
 
   const {
-    userAuth: { userName },
+    userAuth: { userName, accessToken },
   } = useContext(UserContext);
+
+  const handleLike = () => {
+    if (accessToken) {
+      setIsLikeByUser((currVal) => !currVal);
+
+      !isLikeByUser ? total_likes++ : total_likes--;
+
+      setBlog({ ...blog, activity: { ...activity, total_likes } });
+
+      axios
+        .post(
+          import.meta.env.VITE_SERVER_DOMAIN + "/like-blog",
+          { _id, isLikeByUser },
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        )
+        .then(({ data }) => {
+          console.log("data blog", data);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    } else {
+      toast.error("Login to Like this Blog");
+    }
+  };
 
   return (
     <>
+      <Toaster />
       <hr className="border-grey my-2" />
 
       <div className="flex gap-6 justify-between">
         <div className="flex gap-3 items-center">
-          <button className="w-10 h-10 rounded-full flex items-center justify-center bg-grey/80">
-            <i className="fi fi-rr-heart"></i>
+          <button
+            className={
+              "w-10 h-10 rounded-full flex items-center justify-center " +
+              (isLikeByUser ? "bg-red/20 text-red " : " bg-grey/80")
+            }
+            onClick={handleLike}
+          >
+            <i
+              className={"fi fi-" + (isLikeByUser ? "sr" : "rr") + "-heart"}
+            ></i>
           </button>
           <p className="text-xl text-dark-grey">{total_likes}</p>
 

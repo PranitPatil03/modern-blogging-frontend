@@ -26,10 +26,10 @@ const BlogPage = () => {
   const [blog, setBlog] = useState(blogStructure);
   const [loading, setLoading] = useState(true);
   const [similarBlogs, setSimilarBlogs] = useState(null);
+  const [isLikeByUser,setIsLikeByUser]=useState(false)
 
   let {
     title,
-    description,
     content,
     banner,
     author: {
@@ -83,7 +83,7 @@ const BlogPage = () => {
         {loading ? (
           <Loader />
         ) : (
-          <BlogContext.Provider value={{ blog, setBlog }}>
+          <BlogContext.Provider value={{ blog, setBlog,isLikeByUser,setIsLikeByUser }}>
             <div className="max-w-[900px] center py-10 max-lg:px-[5vw]">
               <img src={banner} className="aspect-video" />
 
@@ -117,7 +117,7 @@ const BlogPage = () => {
                 <div className="my-12 font-gelasio blog-post-content">
                 
                   {
-                    content[0].blocks.map((block, i) => {
+                    content[0]?.blocks?.map((block, i) => {
                       return (
                         <div key={i} className="my-4 md:my-8">
                         
