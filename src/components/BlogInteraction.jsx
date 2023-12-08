@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { BlogContext } from "../pages/BlogPage";
 import { Link } from "react-router-dom";
 import { UserContext } from "../App";
@@ -27,6 +27,28 @@ const BlogInteraction = () => {
   const {
     userAuth: { userName, accessToken },
   } = useContext(UserContext);
+
+  useEffect(() => {
+    if (accessToken) {
+      axios
+        .post(
+          import.meta.env.VITE_SERVER_DOMAIN + "/is-liked-by-user",
+          { _id },
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        )
+        .then(({ data: { result } }) => {
+          console.log("data blog", result);
+          setIsLikeByUser(Boolean(result))
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  }, []);
 
   const handleLike = () => {
     if (accessToken) {

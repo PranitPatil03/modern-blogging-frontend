@@ -52,8 +52,6 @@ const List = ({ style, items }) => {
 const BlogContent = ({ block }) => {
   const { type, data } = block;
 
-  console.log("DATA ==>", data);
-
   if (type === "paragraph") {
     return <p dangerouslySetInnerHTML={{ __html: data.text }}></p>;
   }
