@@ -1,13 +1,70 @@
+/* eslint-disable react-refresh/only-export-components */
 import { useContext } from "react";
 import { BlogContext } from "../pages/BlogPage";
 import CommandField from "./CommentField";
+import axios from "axios";
+import { comment } from "postcss";
+import PageAnimation from "../common/PageAnimation";
+import Nodata from "./Nodata";
+import CommentCard from "./CommentCard";
+import LoadMoreDataBtn from "./LoadMore";
+
+export const fetchComments = async ({
+  skip = 0,
+  blog_id,
+  setParentCommentCountFun,
+  comment_array = null,
+}) => {
+  let res;
+
+  await axios
+    .post(import.meta.env.VITE_SERVER_DOMAIN + "/get-blog-comments", {
+      blog_id,
+      skip,
+    })
+    .then(({ data }) => {
+      data.map((comment) => {
+        comment.childrenLevel = 0;
+      });
+
+      setParentCommentCountFun((preVal) => preVal + data.length);
+
+      if (comment_array === null) {
+        res = { results: data };
+      } else {
+        res = { results: [...comment_array, ...data] };
+      }
+    });
+
+  return res;
+};
 
 const CommentsContainer = () => {
   const {
-    blog: { title },
+    blog,
+    blog: {
+      _id,
+      title,
+      comments: { results: commentsArr },
+      activity: { total_parent_comments },
+    },
     commentsWrapper,
     setCommentsWrapper,
+    totalParentCommentsLoaded,
+    setTotalParentCommentsLoaded,
+    setBlog,
   } = useContext(BlogContext);
+
+  const handleLoadMore = async () => {
+    const newCommentArr = await fetchComments({
+      skip: totalParentCommentsLoaded,
+      blog_id: _id,
+      setParentCommentCountFun: setTotalParentCommentsLoaded,
+      comment_array: commentsArr,
+    });
+
+    setBlog({ ...blog, comments: newCommentArr });
+  };
 
   return (
     <>
@@ -37,6 +94,30 @@ const CommentsContainer = () => {
         <hr className="border-grey my-8 w-[120%] -ml-10" />
 
         <CommandField action="Comment" />
+
+        {commentsArr && commentsArr.length ? (
+          commentsArr.map((comment, i) => {
+            return (
+              <PageAnimation key={i}>
+                <CommentCard
+                  index={i}
+                  leftVal={comment.childrenLevel * 4}
+                  commentData={comment}
+                />
+              </PageAnimation>
+            );
+          })
+        ) : (
+          <Nodata message="No Comments" />
+        )}
+
+        {total_parent_comments > totalParentCommentsLoaded ? (
+          <button className="" onClick={handleLoadMore}>
+            load More
+          </button>
+        ) : (
+          ""
+        )}
       </div>
     </>
   );
