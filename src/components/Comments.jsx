@@ -3,11 +3,9 @@ import { useContext } from "react";
 import { BlogContext } from "../pages/BlogPage";
 import CommandField from "./CommentField";
 import axios from "axios";
-import { comment } from "postcss";
 import PageAnimation from "../common/PageAnimation";
 import Nodata from "./Nodata";
 import CommentCard from "./CommentCard";
-import LoadMoreDataBtn from "./LoadMore";
 
 export const fetchComments = async ({
   skip = 0,
@@ -63,6 +61,8 @@ const CommentsContainer = () => {
       comment_array: commentsArr,
     });
 
+    console.log("New Array++", newCommentArr);
+
     setBlog({ ...blog, comments: newCommentArr });
   };
 
@@ -112,7 +112,7 @@ const CommentsContainer = () => {
         )}
 
         {total_parent_comments > totalParentCommentsLoaded ? (
-          <button className="" onClick={handleLoadMore}>
+          <button className="btn-light mt-5 px-10" onClick={handleLoadMore}>
             load More
           </button>
         ) : (

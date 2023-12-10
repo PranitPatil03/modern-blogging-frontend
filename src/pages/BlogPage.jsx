@@ -86,8 +86,6 @@ const BlogPage = () => {
     setLoading(true);
     setSimilarBlogs(null);
     setIsLikeByUser(false);
-    // setCommentsWrapper(false);
-    // setTotalParentCommentsLoaded(0);
   };
 
   return (
