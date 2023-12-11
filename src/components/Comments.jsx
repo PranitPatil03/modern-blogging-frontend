@@ -1,7 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import { useContext } from "react";
 import { BlogContext } from "../pages/BlogPage";
-import CommandField from "./CommentField";
+import CommentField from "./CommentField";
 import axios from "axios";
 import PageAnimation from "../common/PageAnimation";
 import Nodata from "./Nodata";
@@ -60,9 +60,7 @@ const CommentsContainer = () => {
       setParentCommentCountFun: setTotalParentCommentsLoaded,
       comment_array: commentsArr,
     });
-
-    console.log("New Array++", newCommentArr);
-
+    // setBlog({ ...blog, comments: { results: newCommentArr } });
     setBlog({ ...blog, comments: newCommentArr });
   };
 
@@ -93,7 +91,7 @@ const CommentsContainer = () => {
 
         <hr className="border-grey my-8 w-[120%] -ml-10" />
 
-        <CommandField action="Comment" />
+        <CommentField action="Comment" />
 
         {commentsArr && commentsArr.length ? (
           commentsArr.map((comment, i) => {

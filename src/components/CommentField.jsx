@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 import { comment } from "postcss";
 import { useContext, useState } from "react";
@@ -6,7 +7,12 @@ import { UserContext } from "../App";
 import axios from "axios";
 import { BlogContext } from "../pages/BlogPage";
 
-const CommandField = ({ action }) => {
+const CommentField = ({
+  action,
+  index = undefined,
+  replyingTo = undefined,
+  setReplying,
+}) => {
   const [comment, setComment] = useState();
 
   const {
@@ -39,7 +45,7 @@ const CommandField = ({ action }) => {
     axios
       .post(
         import.meta.env.VITE_SERVER_DOMAIN + "/add-comment",
-        { _id, blog_author, comment },
+        { _id, blog_author, comment, replying_to: replyingTo },
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -61,23 +67,39 @@ const CommandField = ({ action }) => {
 
         let newCommentArr;
 
-        data.childLevel = 0;
+        if (replyingTo) {
+          commentsArr[index].children.push(data._id);
 
-        newCommentArr = [data, ...commentsArr];
+          data.childrenLevel = commentsArr[index].childrenLevel + 1;
 
-        let parentCommentIncremental = 1;
+          data.parentIndex = index;
+
+          commentsArr[index].isReplyLoaded = true;
+
+          commentsArr.splice(index + 1, 0, data);
+
+          newCommentArr = commentsArr;
+
+          setReplying(false);
+        } else {
+          data.childrenLevel = 0;
+
+          newCommentArr = [data, ...commentsArr];
+        }
+
+        let parentCommentIncremental = replyingTo ? 0 : 1;
 
         setBlog({
           ...blog,
           comments: {
             ...comments,
             results: newCommentArr,
-            activity: {
-              ...activity,
-              total_comments: total_comments + 1,
-              total_parent_comments:
-                total_parent_comments + parentCommentIncremental,
-            },
+          },
+          activity: {
+            ...activity,
+            total_comments: total_comments + 1,
+            total_parent_comments:
+              total_parent_comments + parentCommentIncremental,
           },
         });
 
@@ -105,4 +127,4 @@ const CommandField = ({ action }) => {
   );
 };
 
-export default CommandField;
+export default CommentField;
