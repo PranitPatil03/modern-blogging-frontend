@@ -11,7 +11,7 @@ const CommentCard = ({ index, leftVal, commentData }) => {
 
   let {
     commented_by: {
-      personal_info: { fullName, profile_img, userName },
+      personal_info: { fullName, profile_img, userName: commented_by_username },
     },
     _id,
     commentedAt,
@@ -20,19 +20,41 @@ const CommentCard = ({ index, leftVal, commentData }) => {
   } = commentData;
 
   const {
-    userAuth: { accessToken },
+    userAuth: { accessToken, userName },
   } = useContext(UserContext);
 
   const {
     blog,
     blog: {
       comments,
+      activity,
+      activity: { total_parent_comments },
       comments: { results: commentsArr },
+      author: {
+        personal_info: { userName: blog_author },
+      },
     },
     setBlog,
+    setTotalParentCommentsLoaded,
   } = useContext(BlogContext);
 
-  const removeCommentsCard = (startingPoint) => {
+  const getParentIndex = () => {
+    let startingPoint = index - 1;
+
+    try {
+      while (
+        commentsArr[startingPoint].childrenLevel >= commentData.childrenLevel
+      ) {
+        startingPoint--;
+      }
+    } catch {
+      startingPoint = undefined;
+    }
+
+    return startingPoint;
+  };
+
+  const removeCommentsCard = (startingPoint, isDelete = false) => {
     if (commentsArr[startingPoint]) {
       while (
         commentsArr[startingPoint].childrenLevel > commentData.childrenLevel
@@ -45,7 +67,36 @@ const CommentCard = ({ index, leftVal, commentData }) => {
       }
     }
 
-    setBlog({ ...blog, comments: { results: commentsArr } });
+    if (isDelete) {
+      const parentIndex = getParentIndex();
+
+      if (parentIndex != undefined) {
+        commentsArr[parentIndex].children = commentsArr[
+          parentIndex
+        ].children.filter((child) => child != _id);
+
+        if (!commentsArr[parentIndex].children.length) {
+          commentsArr[parentIndex].isReplyLoaded = false;
+        }
+      }
+
+      commentsArr.splice(index, 1);
+    }
+
+    if (commentsArr.childrenLevel == 0 && isDelete) {
+      setTotalParentCommentsLoaded((preVal) => preVal - 1);
+    }
+
+    setBlog({
+      ...blog,
+      comments: { results: commentsArr },
+      activity: {
+        ...activity,
+        total_parent_comments:
+          total_parent_comments -
+          (commentData.childrenLevel == 0 && isDelete ? 1 : 0),
+      },
+    });
   };
 
   const handleHideReply = () => {
@@ -89,13 +140,37 @@ const CommentCard = ({ index, leftVal, commentData }) => {
     setReplying((preVal) => !preVal);
   };
 
+  const handleDeleteComment = (e) => {
+    e.target.setAttribute("disabled", true);
+
+    axios
+      .post(
+        import.meta.env.VITE_SERVER_DOMAIN + "/delete-comment",
+        {
+          _id,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      )
+      .then(() => {
+        e.target.removeAttribute("disable");
+        removeCommentsCard(index + 1, true);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
   return (
     <div className="w-full" style={{ paddingLeft: `${leftVal * 10}px` }}>
       <div className="my-5 p-6 rounded-md border border-grey">
         <div className="flex gap-3 items-center mb-8">
           <img src={profile_img} className="w-6 h-6 rounded-full" />
           <p className="line-clamp-1">
-            {fullName} @{userName}
+            {fullName} @{commented_by_username}
           </p>
           <p className="min-w-fit">{getDay(commentedAt)}</p>
         </div>
@@ -123,6 +198,18 @@ const CommentCard = ({ index, leftVal, commentData }) => {
           <button className="underline" onClick={handleReplyClick}>
             Reply
           </button>
+
+          {userName === commented_by_username || userName === blog_author ? (
+            <button
+              className="p-2 px-3 rounded-md border border-grey ml-auto hover:bg-red/30
+             hover:text-red flex items-center"
+              onClick={handleDeleteComment}
+            >
+              <i className="fi fi-rr-trash pointer-events-none"></i>
+            </button>
+          ) : (
+            " "
+          )}
         </div>
 
         {isReplying ? (
