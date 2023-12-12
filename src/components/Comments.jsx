@@ -60,7 +60,6 @@ const CommentsContainer = () => {
       setParentCommentCountFun: setTotalParentCommentsLoaded,
       comment_array: commentsArr,
     });
-    // setBlog({ ...blog, comments: { results: newCommentArr } });
     setBlog({ ...blog, comments: newCommentArr });
   };
 

@@ -5,7 +5,6 @@ import toast from "react-hot-toast";
 import CommentField from "./CommentField";
 import { BlogContext } from "../pages/BlogPage";
 import axios from "axios";
-
 /* eslint-disable react/prop-types */
 const CommentCard = ({ index, leftVal, commentData }) => {
   const [isReplying, setReplying] = useState(false);
@@ -57,7 +56,6 @@ const CommentCard = ({ index, leftVal, commentData }) => {
   const handleLoadReplies = ({ skip = 0 }) => {
     if (children.length) {
       handleHideReply();
-
       axios
         .post(import.meta.env.VITE_SERVER_DOMAIN + "/get-replies", {
           _id,
@@ -74,7 +72,7 @@ const CommentCard = ({ index, leftVal, commentData }) => {
 
           setBlog({
             ...blog,
-            comments: { ...comments, results: { commentsArr } },
+            comments: { ...comments, results: commentsArr },
           });
         })
         .catch((err) => {
@@ -84,6 +82,7 @@ const CommentCard = ({ index, leftVal, commentData }) => {
   };
 
   const handleReplyClick = () => {
+    alert("handle Reply Click");
     if (!accessToken) {
       return toast.error("Login first to give reply");
     }
