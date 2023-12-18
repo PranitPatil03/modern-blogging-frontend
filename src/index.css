@@ -15,7 +15,7 @@
   }
 
   body {
-    @apply font-inter font-normal text-black;
+    @apply font-gelasio font-normal text-black;
   }
 
   i {
@@ -89,12 +89,12 @@
 
   #textEditor h2,
   h2 {
-    @apply font-inter text-4xl leading-normal font-bold max-md:text-3xl max-md:leading-snug !important;
+    @apply font-gelasio text-4xl leading-normal font-bold max-md:text-3xl max-md:leading-snug;
   }
 
   #textEditor h3,
   h3 {
-    @apply font-inter text-3xl leading-loose max-md:text-2xl max-md:leading-normal !important;
+    @apply font-gelasio text-3xl leading-loose max-md:text-2xl max-md:leading-normal  ;
   }
 
   #textEditor *,
