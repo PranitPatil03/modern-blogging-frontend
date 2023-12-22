@@ -1,11 +1,17 @@
-import { useRef } from "react";
+import { useContext, useRef } from "react";
 import PageAnimation from "../common/PageAnimation";
 import InputBox from "../components/InputBox";
 import toast, { Toaster } from "react-hot-toast";
+import axios from "axios";
+import { UserContext } from "../App";
 
 const ChangePassword = () => {
   const changePasswordForm = useRef();
   const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,20}$/;
+
+  const {
+    userAuth: { accessToken },
+  } = useContext(UserContext);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -30,6 +36,27 @@ const ChangePassword = () => {
     ) {
       return toast.error("Password is Invalid");
     }
+
+    e.target.setAttribute("disabled", true);
+
+    const loadingToast = toast.loading("Updating Password...");
+
+    axios
+      .post(import.meta.env.VITE_SERVER_DOMAIN + "/change-password", formData, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      })
+      .then(() => {
+        toast.dismiss(loadingToast);
+        e.target.setAttribute("disabled", false);
+        toast.success("Password Updated👍✅");
+      })
+      .catch(({ response }) => {
+        toast.dismiss(loadingToast);
+        e.target.setAttribute("disabled", false);
+        toast.success(response.data.error);
+      });
   };
 
   return (
