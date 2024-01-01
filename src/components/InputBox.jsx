@@ -1,7 +1,15 @@
 /* eslint-disable react/prop-types */
 import { useState } from "react";
 
-const InputBox = ({ name, type, value, id, placeholder, icon }) => {
+const InputBox = ({
+  name,
+  type,
+  value,
+  id,
+  placeholder,
+  icon,
+  disabled = false,
+}) => {
   const [passwordVisible, SetPasswordVisible] = useState(false);
 
   return (
@@ -16,6 +24,7 @@ const InputBox = ({ name, type, value, id, placeholder, icon }) => {
           id={id}
           placeholder={placeholder}
           className="input-box"
+          disabled={disabled}
         />
 
         <i className={`fi ${icon} input-icon `}></i>
