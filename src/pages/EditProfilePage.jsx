@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import axios from "axios";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { UserContext } from "../App";
 import { profileDataStructure } from "./ProfilePage";
 import Loader from "../components/Loader";
@@ -10,11 +10,14 @@ import InputBox from "../components/InputBox";
 
 const EditProfile = () => {
   const bioLimit = 150;
+  const ImagePreviewRef = useRef();
+
   const {
     userAuth: { accessToken, userName },
   } = useContext(UserContext);
 
   const [loading, setLoading] = useState(true);
+  const [updatedImgUrl, setUpdatedImgUrl] = useState(null);
   const [charactersLeft, setCharactersLeft] = useState(bioLimit);
   const [profile, setProfileData] = useState(profileDataStructure);
 
@@ -31,6 +34,14 @@ const EditProfile = () => {
 
   const handleCharacterChange = (e) => {
     setCharactersLeft(bioLimit - e.target.value.length);
+  };
+
+  const handleImagePreview = (e) => {
+    const previewImg = e.target.files[0];
+
+    ImagePreviewRef.current.src = URL.createObjectURL(previewImg);
+
+    setUpdatedImgUrl(previewImg);
   };
 
   useEffect(() => {
@@ -67,13 +78,14 @@ const EditProfile = () => {
                 <div className="w-full h-full absolute left-0 top-0 flex items-center justify-center text-white bg-black/80 opacity-0 hover:opacity-100 cursor-pointer">
                   Upload Profile Image
                 </div>
-                <img src={profile_img} />
+                <img ref={ImagePreviewRef} src={profile_img} />
               </label>
               <input
+                hidden
                 type="file"
                 id="uploadImg"
                 accept=".jpeg .png .jpg"
-                hidden
+                onChange={handleImagePreview}
               />
 
               <button className="btn-light mt-5 max-lg:center lg:w-full px-10">
