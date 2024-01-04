@@ -5,8 +5,11 @@ import { UserContext } from "../App";
 import { profileDataStructure } from "./ProfilePage";
 import Loader from "../components/Loader";
 import PageAnimation from "../common/PageAnimation";
-import { Toaster } from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 import InputBox from "../components/InputBox";
+import uploadImg from "../common/AWS";
+import { StoreSession } from "../common/Session";
+import { json } from "react-router-dom";
 
 const EditProfile = () => {
   const bioLimit = 150;
@@ -14,6 +17,8 @@ const EditProfile = () => {
 
   const {
     userAuth: { accessToken, userName },
+    userAuth,
+    setUserAuth,
   } = useContext(UserContext);
 
   const [loading, setLoading] = useState(true);
@@ -42,6 +47,57 @@ const EditProfile = () => {
     ImagePreviewRef.current.src = URL.createObjectURL(previewImg);
 
     setUpdatedImgUrl(previewImg);
+  };
+
+  const handleImgUpload = (e) => {
+    e.preventDefault();
+
+    if (updatedImgUrl) {
+      const loadingToast = toast.loading("Uploading....");
+
+      e.target.setAttribute("disabled", true);
+
+      uploadImg(updatedImgUrl)
+        .then((url) => {
+          console.log("URL2", url);
+
+          if (url) {
+            axios
+              .post(
+                import.meta.env.VITE_SERVER_DOMAIN + "/update-profile-img",
+                { updatedImgUrl: url },
+                {
+                  headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                  },
+                }
+              )
+              .then(({ data }) => {
+                const newUserAuth = {
+                  ...userAuth,
+                  profile_img: data.profile_img,
+                };
+                StoreSession("user", JSON.stringify(newUserAuth));
+
+                setUserAuth(newUserAuth);
+
+                setUpdatedImgUrl(null);
+
+                toast.dismiss(loadingToast);
+                e.target.setAttribute("disabled", false);
+                toast.success("Profile Image Updated👍✅");
+              })
+              .catch(({ response }) => {
+                toast.dismiss(loadingToast);
+                e.target.setAttribute("disabled", false);
+                toast.success(response.data.error);
+              });
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
   };
 
   useEffect(() => {
@@ -88,7 +144,10 @@ const EditProfile = () => {
                 onChange={handleImagePreview}
               />
 
-              <button className="btn-light mt-5 max-lg:center lg:w-full px-10">
+              <button
+                className="btn-light mt-5 max-lg:center lg:w-full px-10"
+                onClick={handleImgUpload}
+              >
                 Upload
               </button>
             </div>

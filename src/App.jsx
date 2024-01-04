@@ -35,8 +35,8 @@ function App() {
         <Route path="/" element={<Navbar />}>
           <Route index element={<HomePage />} />
           <Route path="settings" element={<SideNavbar />}>
-            <Route path="edit-profile" element={<EditProfile/>} />
-            <Route path="change-password" element={<ChangePassword/>} />
+            <Route path="edit-profile" element={<EditProfile />} />
+            <Route path="change-password" element={<ChangePassword />} />
           </Route>
           <Route path="sign-in" element={<UserAuthForm type="sign-in" />} />
           <Route path="signup" element={<UserAuthForm type="sign-up" />} />
