@@ -5,7 +5,7 @@ import { useRef } from "react";
 
 const SideNavbar = () => {
   const {
-    userAuth: { accessToken },
+    userAuth: { accessToken, new_notification_available },
   } = useContext(UserContext);
 
   const sideBarIconTab = useRef();
@@ -84,10 +84,15 @@ const SideNavbar = () => {
             <NavLink
               to="/dashboard/notification"
               onClick={(e) => setPageState(e.target.innerText)}
-              className="sidebar-link"
+              className="sidebar-link relative"
             >
               <i className="fi fi-rr-bell"></i>
               Notification
+              {new_notification_available ? (
+                <span className=" absolute bg-red rounded-full w-2 h-2 z-10 top-5 left-2"></span>
+              ) : (
+                ""
+              )}
             </NavLink>
             <NavLink
               to="/dashboard/blogs"

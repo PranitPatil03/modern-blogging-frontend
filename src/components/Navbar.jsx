@@ -1,8 +1,9 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import logo from "../assets/logo.png";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { UserContext } from "../App";
 import UserNavigationPanel from "./UserNavigation";
+import axios from "axios";
 
 const Navbar = () => {
   const [SearchBoxVisibility, setSearchBoxVisibility] = useState(false);
@@ -11,7 +12,9 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   const {
-    userAuth: { accessToken, profile_img },
+    userAuth: { accessToken, profile_img, new_notification_available },
+    setUserAuth,
+    userAuth,
   } = useContext(UserContext);
 
   const handleUserNavPanel = () => {
@@ -31,6 +34,25 @@ const Navbar = () => {
       navigate(`/search/${query}`);
     }
   };
+
+  useEffect(() => {
+    if (accessToken) {
+      axios
+        .get(import.meta.env.VITE_SERVER_DOMAIN + "/new-notification", {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        })
+        .then(({ data }) => {
+          setUserAuth({ ...userAuth, ...data });
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  }, [accessToken]);
+
+  console.log(new_notification_available);
 
   return (
     <>
@@ -72,6 +94,11 @@ const Navbar = () => {
               <Link to="/dashboard/notification">
                 <button className="w-12 h-12 rounded-full relative bg-grey hover:bg-black/10">
                   <i className="fi fi-rr-bell text-2xl block mt-1"></i>
+                  {new_notification_available ? (
+                    <span className=" absolute bg-red rounded-full w-3 h-3 z-10 top-2 right-2"></span>
+                  ) : (
+                    ""
+                  )}
                 </button>
               </Link>
 
