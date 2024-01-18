@@ -13,7 +13,6 @@ import BlogPage from "./pages/BlogPage";
 import SideNavbar from "./components/SideNavbar";
 import ChangePassword from "./pages/ChangePasswordPage";
 import EditProfile from "./pages/EditProfilePage";
-import Notification from "../../blog-server/Schema/Notification";
 import Notifications from "./pages/NotificationsPage";
 
 export const UserContext = createContext({});
