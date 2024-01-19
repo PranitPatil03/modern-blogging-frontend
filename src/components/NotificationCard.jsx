@@ -1,12 +1,80 @@
 import { Link } from "react-router-dom";
+import { getDay } from "../common/Date";
+import { useContext, useState } from "react";
+import NotificationCommentField from "./NotificationCommentField";
+import { UserContext } from "../App";
+import axios from "axios";
 
 /* eslint-disable react/prop-types */
 const NotificationCard = ({ data, index, notificationState }) => {
+  const [isReplying, setIsRelying] = useState(false);
+
   const {
+    notifications,
+    notifications: { results, totalDocs },
+    setNotifications,
+  } = notificationState;
+
+  const {
+    userAuth: {
+      userName: author_userName,
+      profile_img: author_profile_img,
+      accessToken,
+    },
+  } = useContext(UserContext);
+
+  const {
+    type,
+    reply,
+    createdAt,
+    comment,
+    replied_on_comment,
+    user,
     user: {
       personal_info: { profile_img, fullName, userName },
     },
+    blog: { _id, blog_id, title },
+    _id: notification_id,
   } = data;
+
+  const handleReplyClick = () => {
+    setIsRelying((preVal) => !preVal);
+  };
+
+  const handleDelete = (comment_id, type, target) => {
+    target.setAttribute("disabled", true);
+
+    axios
+      .post(
+        import.meta.env.VITE_SERVER_DOMAIN + "/delete-comment",
+        {
+          _id: comment_id,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      )
+      .then(() => {
+        if (type == "comment") {
+          results.slice(index, 1);
+        } else {
+          delete results[index].reply;
+        }
+
+        target.removeAttribute("disable");
+        setNotifications({
+          ...notifications,
+          results,
+          totalDocs: totalDocs - 1,
+          deletedDocCount: notifications.deletedDocCount + 1,
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
 
   return (
     <>
@@ -15,11 +83,126 @@ const NotificationCard = ({ data, index, notificationState }) => {
           <img src={profile_img} className="w-14 h-14 rounded-full flex-none" />
           <div className="w-full">
             <h1 className="font-medium text-xl text-dark-grey">
-              <span>{fullName}</span>
-              <Link to={`/user/${userName}`}>@{userName}</Link>
+              <span className="lg:inline-block hidden capitalize">
+                {fullName}
+              </span>
+              <Link
+                to={`/user/${userName}`}
+                className="mx-1 text-black underline"
+              >
+                @{userName}
+              </Link>
+              <span className="font-normal">
+                {type == "like"
+                  ? "Liked your blog"
+                  : type == "comment"
+                  ? "Commented on"
+                  : "replied on"}
+              </span>
             </h1>
+
+            {type == "reply" ? (
+              <div className="p-4 mt-4 rounded-md bg-grey">
+                <p className="">{replied_on_comment.comment}</p>
+              </div>
+            ) : (
+              <Link
+                to={`/blog/${blog_id}`}
+                className="font-medium text-dark-grey hover:underline line-clamp-1"
+              >{`"${title}"`}</Link>
+            )}
           </div>
         </div>
+
+        {type != "like" ? (
+          <p className="ml-14 pl-5 font-gelasio text-xl my-5">
+            {comment?.comment}
+          </p>
+        ) : (
+          ""
+        )}
+
+        <div className="ml-14 pl-5 mt-3 text-dark-grey flex gap-8">
+          <p>{getDay(createdAt)}</p>
+
+          {type != "like" ? (
+            <>
+              {!reply ? (
+                <button
+                  className="underline hover:text-black"
+                  onClick={handleReplyClick}
+                >
+                  Reply
+                </button>
+              ) : (
+                ""
+              )}
+              <button
+                className="underline hover:text-black"
+                onClick={(e) => handleDelete(comment._id, "comment", e.target)}
+              >
+                Delete
+              </button>
+            </>
+          ) : (
+            ""
+          )}
+        </div>
+
+        {isReplying ? (
+          <div className="mt-8">
+            <NotificationCommentField
+              _id={_id}
+              blog_author={user}
+              index={index}
+              replyingTo={comment._id}
+              setReplying={setIsRelying}
+              notification_id={notification_id}
+              notificationData={notificationState}
+            />
+          </div>
+        ) : (
+          ""
+        )}
+
+        {reply ? (
+          <div className="ml-20 p-5 bg-grey mt-5 rounded-md">
+            <div className="flex gap-3 mb-3">
+              <img className="w-8 h-8 rounded-full" src={author_profile_img} />
+
+              <div>
+                <h1 className="font-medium text-xl text-dark-grey">
+                  <Link
+                    to={`/user/${author_userName}`}
+                    className="mx-1 text-black underline"
+                  >
+                    @{author_userName}
+                  </Link>
+
+                  <span className="font-normal">replied to</span>
+
+                  <Link
+                    to={`/user/${userName}`}
+                    className="mx-1 text-black underline"
+                  >
+                    @{userName}
+                  </Link>
+                </h1>
+              </div>
+            </div>
+
+            <p className="ml-14 font-gelasio text-xl my-2">{reply.comment}</p>
+
+            <button
+              className="ml-14 mt-3 underline hover:text-black"
+              onClick={(e) => handleDelete(comment._id, "reply", e.target)}
+            >
+              Delete
+            </button>
+          </div>
+        ) : (
+          ""
+        )}
       </div>
     </>
   );
