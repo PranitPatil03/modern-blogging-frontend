@@ -4,6 +4,11 @@ import { UserContext } from "../App";
 import axios from "axios";
 import FilterPaginationData from "../common/FilterPaginationData";
 import { Toaster } from "react-hot-toast";
+import InPageNavigation from "../components/InpageNavigation";
+import Loader from "../components/Loader";
+import Nodata from "../components/Nodata";
+import PageAnimation from "../common/PageAnimation";
+import ManagePublishedBlogsCard from "../components/ManageBlogcard";
 
 const ManageBlogs = () => {
   const {
@@ -39,6 +44,8 @@ const ManageBlogs = () => {
           countRoute: "/user-written-blogs-count",
           data_to_send: { query, draft },
         });
+
+        console.log("formattedData", formattedData);
 
         if (draft) {
           setDrafts(formattedData);
@@ -99,6 +106,24 @@ const ManageBlogs = () => {
 
         <i className="fi fi-rr-search absolute right-[10%] md:pointer-events-none md:left-5 top-1/2 -translate-y-1/2 text-xl text-dark-grey"></i>
       </div>
+
+      <InPageNavigation routes={["Published Blogs", "Drafts"]}>
+        {blogs == null ? (
+          <Loader />
+        ) : blogs.results.length ? (
+          <>
+            {blogs.results.map((blog, i) => {
+              return (
+                <PageAnimation key={i} transition={{ delay: i * 0.04 }}>
+                  <ManagePublishedBlogsCard blog={blog} />
+                </PageAnimation>
+              );
+            })}
+          </>
+        ) : (
+          <Nodata message="No Published Blogs" />
+        )}
+      </InPageNavigation>
     </>
   );
 };
