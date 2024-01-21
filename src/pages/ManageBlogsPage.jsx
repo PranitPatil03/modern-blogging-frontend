@@ -8,7 +8,10 @@ import InPageNavigation from "../components/InpageNavigation";
 import Loader from "../components/Loader";
 import Nodata from "../components/Nodata";
 import PageAnimation from "../common/PageAnimation";
-import ManagePublishedBlogsCard from "../components/ManageBlogcard";
+import ManagePublishedBlogsCard, {
+  ManagePublishedDraftCard,
+} from "../components/ManageBlogcard";
+import LoadMoreDataBtn from "../components/LoadMore";
 
 const ManageBlogs = () => {
   const {
@@ -115,13 +118,50 @@ const ManageBlogs = () => {
             {blogs.results.map((blog, i) => {
               return (
                 <PageAnimation key={i} transition={{ delay: i * 0.04 }}>
-                  <ManagePublishedBlogsCard blog={blog} />
+                  <ManagePublishedBlogsCard
+                    blog={{ ...blog, index: i, setStateFun: setBlogs }}
+                  />
                 </PageAnimation>
               );
             })}
+
+            <LoadMoreDataBtn
+              state={blogs}
+              fetchDataFun={getBlogs}
+              additionalParams={{
+                draft: false,
+                deletedDocCount: blogs.deletedDocCount,
+              }}
+            />
           </>
         ) : (
           <Nodata message="No Published Blogs" />
+        )}
+
+        {drafts == null ? (
+          <Loader />
+        ) : drafts.results.length ? (
+          <>
+            {drafts.results.map((blog, i) => {
+              return (
+                <PageAnimation key={i} transition={{ delay: i * 0.04 }}>
+                  <ManagePublishedDraftCard
+                    blog={{ ...blog, index: i, setStateFun: setDrafts }}
+                  />
+                </PageAnimation>
+              );
+            })}
+            <LoadMoreDataBtn
+              state={drafts}
+              fetchDataFun={getBlogs}
+              additionalParams={{
+                draft: true,
+                deletedDocCount: setDrafts.deletedDocCount,
+              }}
+            />
+          </>
+        ) : (
+          <Nodata message="No Drafts Blogs" />
         )}
       </InPageNavigation>
     </>
