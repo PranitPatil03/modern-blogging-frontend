@@ -3,7 +3,7 @@
 /* eslint-disable react/prop-types */
 import InputBox from "../components/InputBox";
 import googleIcon from "../assets/google.png";
-import { Link, Navigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import PageAnimation from "../common/PageAnimation";
 import { Toaster, toast } from "react-hot-toast";
 import axios from "axios";
@@ -13,6 +13,8 @@ import { UserContext } from "../App";
 import { authWithGoogle } from "../common/Firebase";
 
 const UserAuthFormPage = ({ type }) => {
+  const navigate = useNavigate();
+
   const {
     userAuth: { accessToken },
     setUserAuth,
@@ -32,6 +34,7 @@ const UserAuthFormPage = ({ type }) => {
         console.log("Data ==>", data);
         StoreSession("user", JSON.stringify(data));
         setUserAuth(data);
+        toast.success(`${type} successful ✅`);
       })
       .catch(({ response }) => {
         toast.error(response?.data.error);
@@ -70,6 +73,10 @@ const UserAuthFormPage = ({ type }) => {
     }
 
     userAuthFromServer(serverRoute, formData);
+
+    if (type == "signup") {
+      navigate("/sign-in");
+    }
   };
 
   const handleGoogleAuth = (e) => {
