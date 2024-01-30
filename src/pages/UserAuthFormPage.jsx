@@ -25,7 +25,7 @@ const UserAuthFormPage = ({ type }) => {
   let emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
   let passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,20}$/;
 
-  const serverRoute = type == "sign-in" ? "/sign-in" : "/signup";
+  const serverRoute = type == "sign-in" ? "/auth/sign-in" : "/auth/signup";
 
   const userAuthFromServer = (serverRoute, formData) => {
     axios
@@ -86,7 +86,7 @@ const UserAuthFormPage = ({ type }) => {
       .then((user) => {
         console.log(user.accessToken.length);
 
-        const serverRoute = "/google-auth";
+        const serverRoute = "/auth/google-auth";
 
         const formData = {
           accessToken: user.accessToken,

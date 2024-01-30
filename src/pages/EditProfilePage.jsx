@@ -64,7 +64,7 @@ const EditProfile = () => {
           if (url) {
             axios
               .post(
-                import.meta.env.VITE_SERVER_DOMAIN + "/update-profile-img",
+                import.meta.env.VITE_SERVER_DOMAIN + "/user/update-profile-img",
                 { updatedImgUrl: url },
                 {
                   headers: {
@@ -136,7 +136,7 @@ const EditProfile = () => {
 
     axios
       .post(
-        import.meta.env.VITE_SERVER_DOMAIN + "/update-profile",
+        import.meta.env.VITE_SERVER_DOMAIN + "/user/update-profile",
         {
           userName,
           bio,
@@ -177,7 +177,7 @@ const EditProfile = () => {
 
   useEffect(() => {
     axios
-      .post(import.meta.env.VITE_SERVER_DOMAIN + "/get-profile", {
+      .post(import.meta.env.VITE_SERVER_DOMAIN + "/user/get-profile", {
         userName: userName,
       })
       .then(({ data }) => {

@@ -40,13 +40,13 @@ const HomePage = () => {
 
   const fetchLatestBlogs = ({ page = 1 }) => {
     axios
-      .post(import.meta.env.VITE_SERVER_DOMAIN + "/latest-blogs", { page })
+      .post(import.meta.env.VITE_SERVER_DOMAIN + "/blog/latest-blogs", { page })
       .then(async ({ data }) => {
         const formateData = await FilterPaginationData({
           state: blogs,
           data: data.blogs,
           page,
-          countRoute: "/all-latest-blogs-count",
+          countRoute: "/blog/all-latest-blogs-count",
         });
 
         setBlogs(formateData);
@@ -58,7 +58,7 @@ const HomePage = () => {
 
   const fetchBlogsByCategory = ({ page = 1 }) => {
     axios
-      .post(import.meta.env.VITE_SERVER_DOMAIN + "/search-blogs", {
+      .post(import.meta.env.VITE_SERVER_DOMAIN + "/blog/search-blogs", {
         tag: pageState,
         page,
       })
@@ -80,7 +80,7 @@ const HomePage = () => {
 
   const fetchTrendingBlogs = () => {
     axios
-      .get(import.meta.env.VITE_SERVER_DOMAIN + "/trending-blogs")
+      .get(import.meta.env.VITE_SERVER_DOMAIN + "/blog/trending-blogs")
       .then(({ data }) => {
         setTrendingBlogs(data.blogs);
       })

@@ -42,11 +42,15 @@ const ChangePassword = () => {
     const loadingToast = toast.loading("Updating Password...");
 
     axios
-      .post(import.meta.env.VITE_SERVER_DOMAIN + "/change-password", formData, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      })
+      .post(
+        import.meta.env.VITE_SERVER_DOMAIN + "/user/change-password",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      )
       .then(() => {
         toast.dismiss(loadingToast);
         e.target.setAttribute("disabled", false);
