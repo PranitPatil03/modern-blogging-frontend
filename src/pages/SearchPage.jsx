@@ -27,7 +27,7 @@ const SearchPage = () => {
           state: blogs,
           data: data.blogs,
           page,
-          countRoute: "/search-blogs-count",
+          countRoute: "/blog/search-blogs-count",
           create_new_arr,
         });
 
