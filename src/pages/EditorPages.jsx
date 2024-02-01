@@ -38,7 +38,7 @@ const EditorPages = () => {
     }
 
     axios
-      .post(import.meta.env.VITE_SERVER_DOMAIN + "/get-blog", {
+      .post(import.meta.env.VITE_SERVER_DOMAIN + "/blog/get-blog", {
         blog_id,
         draft: true,
         mode: "edit",

@@ -38,7 +38,7 @@ const Navbar = () => {
   useEffect(() => {
     if (accessToken) {
       axios
-        .get(import.meta.env.VITE_SERVER_DOMAIN + "/new-notification", {
+        .get(import.meta.env.VITE_SERVER_DOMAIN + "/notifications/new-notification", {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },

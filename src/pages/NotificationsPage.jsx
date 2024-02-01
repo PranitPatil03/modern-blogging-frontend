@@ -24,7 +24,7 @@ const Notifications = () => {
     filter = filter.toLowerCase();
     axios
       .post(
-        import.meta.env.VITE_SERVER_DOMAIN + "/notifications",
+        import.meta.env.VITE_SERVER_DOMAIN + "/notifications/notifications",
         {
           page,
           filter,
@@ -46,7 +46,7 @@ const Notifications = () => {
           state: notifications,
           data,
           page,
-          countRoute: "/all-notifications-count",
+          countRoute: "/notifications/all-notifications-count",
           data_to_send: { filter },
           user: accessToken,
         });

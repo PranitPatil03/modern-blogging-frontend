@@ -43,7 +43,7 @@ const BlogPage = () => {
 
   const fetchBlogs = () => {
     axios
-      .post(import.meta.env.VITE_SERVER_DOMAIN + "/get-blog", {
+      .post(import.meta.env.VITE_SERVER_DOMAIN + "/blog/get-blog", {
         blog_id,
       })
       .then(async ({ data: { blog } }) => {
@@ -59,7 +59,7 @@ const BlogPage = () => {
         setBlog(blog);
 
         axios
-          .post(import.meta.env.VITE_SERVER_DOMAIN + "/search-blogs", {
+          .post(import.meta.env.VITE_SERVER_DOMAIN + "/blog/search-blogs", {
             tag: blog.tags[0],
             limit: 6,
             eliminate_blog: blog_id,
@@ -86,8 +86,8 @@ const BlogPage = () => {
     setLoading(true);
     setSimilarBlogs(null);
     setIsLikeByUser(false);
-    setCommentsWrapper(false)
-    setTotalParentCommentsLoaded(0)
+    setCommentsWrapper(false);
+    setTotalParentCommentsLoaded(0);
   };
 
   return (

@@ -18,7 +18,7 @@ const SearchPage = () => {
 
   const searchBlogs = ({ page = 1, create_new_arr = false }) => {
     axios
-      .post(import.meta.env.VITE_SERVER_DOMAIN + "/search-blogs", {
+      .post(import.meta.env.VITE_SERVER_DOMAIN + "/blog/search-blogs", {
         query,
         page,
       })
@@ -27,7 +27,7 @@ const SearchPage = () => {
           state: blogs,
           data: data.blogs,
           page,
-          countRoute: "/search-blogs-count",
+          countRoute: "/blog/search-blogs-count",
           create_new_arr,
         });
 
@@ -40,7 +40,7 @@ const SearchPage = () => {
 
   const searchUser = () => {
     axios
-      .post(import.meta.env.VITE_SERVER_DOMAIN + "/search-users", {
+      .post(import.meta.env.VITE_SERVER_DOMAIN + "/user/search-users", {
         query,
       })
       .then(({ data: { users } }) => {
