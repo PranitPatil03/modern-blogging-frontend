@@ -8,11 +8,14 @@ import MinimalBlogPost from "../components/NobannerBlogPost";
 import Nodata from "../components/Nodata";
 import FilterPaginationData from "../common/FilterPaginationData";
 import LoadMoreDataBtn from "../components/LoadMore";
+import { toast, Toaster } from "react-hot-toast";
 
 const HomePage = () => {
   const [blogs, setBlogs] = useState(null);
   const [trendingBlogs, setTrendingBlogs] = useState(null);
   const [pageState, setPageState] = useState("home");
+
+  const [loading, setLoading] = useState(true);
 
   const categories = [
     "Lifestyle",
@@ -103,8 +106,32 @@ const HomePage = () => {
     }
   }, [pageState]);
 
+  useEffect(() => {
+    const checkServerHealth = async () => {
+      if (loading) {
+        const intervalId = setInterval(() => {
+          toast.success("Patience, our server doing the hustle!");
+        }, 3000);
+
+        try {
+          const data = await axios.get(
+            import.meta.env.VITE_SERVER_DOMAIN + "/api/health"
+          );
+          if (data.data) {
+            setLoading(false);
+            clearInterval(intervalId);
+          }
+        } catch (error) {
+          console.error("Error checking server status:", error);
+        }
+      }
+    };
+
+    checkServerHealth();
+  }, [loading]);
   return (
     <PageAnimation>
+      <Toaster></Toaster>
       <section className="h-cover flex justify-center gap-10">
         <div className="w-full">
           <InPageNavigation
